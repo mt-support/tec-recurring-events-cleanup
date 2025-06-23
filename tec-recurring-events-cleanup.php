@@ -38,8 +38,7 @@ function tec_recurring_events_cleanup(): void {
 				SELECT ID FROM %i WHERE
 				post_type = %s AND
 				post_parent > 0
-				ORDER BY ID ASC LIMIT 1000
-			)',
+			) ORDER BY post_id ASC LIMIT 1000',
 			$wpdb->postmeta,
 			$wpdb->posts,
 			'tribe_events'
