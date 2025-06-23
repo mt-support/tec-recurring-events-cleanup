@@ -19,13 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 function tec_recurring_events_cleanup(): void {
 	global $wpdb;
 
-	$prefix = $wpdb->prefix;
 	$results = [];
 
 	// Query 1: Delete recurrence queue meta
 	$wpdb->query(
 		$wpdb->prepare(
-			"DELETE FROM {$prefix}postmeta WHERE meta_key = %s ORDER BY meta_id ASC LIMIT 1000",
+			"DELETE FROM %i WHERE meta_key = %s ORDER BY meta_id ASC LIMIT 1000",
+			$wpdb->postmeta,
 			'_TribeEventsPRO_RecurrenceQueue'
 		)
 	);
@@ -33,19 +33,30 @@ function tec_recurring_events_cleanup(): void {
 
 	// Query 2: Delete post meta for recurring event instances
 	$wpdb->query(
-		"DELETE FROM {$prefix}postmeta
-		WHERE post_id IN (
-			SELECT ID FROM {$prefix}posts
-			WHERE post_type = 'tribe_events'
-			AND post_parent > 0 ORDER BY ID ASC LIMIT 1000 )"
+		$wpdb->prepare(
+			'DELETE FROM %i WHERE post_id IN (
+				SELECT ID FROM %i WHERE
+				post_type = %s AND
+				post_parent > 0
+				ORDER BY ID ASC LIMIT 1000
+			)',
+			$wpdb->postmeta,
+			$wpdb->posts,
+			'tribe_events'
+		)
 	);
 	$results['recurring_meta'] = $wpdb->rows_affected;
 
 	// Query 3: Delete recurring event instance posts
 	$wpdb->query(
-		"DELETE FROM {$prefix}posts
-		WHERE post_type = 'tribe_events'
-		AND post_parent > 0 ORDER BY ID ASC LIMIT 1000"
+		$wpdb->prepare(
+			'DELETE FROM %i WHERE
+				post_type = %s AND
+				post_parent > 0
+				ORDER BY ID ASC LIMIT 1000',
+			$wpdb->posts,
+			'tribe_events'
+		)
 	);
 	$results['recurring_posts'] = $wpdb->rows_affected;
 
