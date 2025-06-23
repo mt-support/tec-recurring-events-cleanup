@@ -25,7 +25,7 @@ function tec_recurring_events_cleanup(): void {
 	// Query 1: Delete recurrence queue meta
 	$wpdb->query(
 		$wpdb->prepare(
-			"DELETE FROM {$prefix}postmeta WHERE meta_key = %s ORDER BY meta_id ASC LIMIT 100",
+			"DELETE FROM {$prefix}postmeta WHERE meta_key = %s ORDER BY meta_id ASC LIMIT 1000",
 			'_TribeEventsPRO_RecurrenceQueue'
 		)
 	);
@@ -37,7 +37,7 @@ function tec_recurring_events_cleanup(): void {
 		WHERE post_id IN (
 			SELECT ID FROM {$prefix}posts
 			WHERE post_type = 'tribe_events'
-			AND post_parent > 0 ORDER BY ID ASC LIMIT 100 )"
+			AND post_parent > 0 ORDER BY ID ASC LIMIT 1000 )"
 	);
 	$results['recurring_meta'] = $wpdb->rows_affected;
 
@@ -45,7 +45,7 @@ function tec_recurring_events_cleanup(): void {
 	$wpdb->query(
 		"DELETE FROM {$prefix}posts
 		WHERE post_type = 'tribe_events'
-		AND post_parent > 0 ORDER BY ID ASC LIMIT 100"
+		AND post_parent > 0 ORDER BY ID ASC LIMIT 1000"
 	);
 	$results['recurring_posts'] = $wpdb->rows_affected;
 
@@ -57,7 +57,7 @@ function tec_recurring_events_cleanup(): void {
 		'results' => $results
 	] );
 
-	$could_be_more_batches = array_filter( $results, static fn( $result ) => $result > 99 );
+	$could_be_more_batches = array_filter( $results, static fn( $result ) => $result > 999 );
 
 	if ( empty( $could_be_more_batches ) ) {
 		// Deactivate the plugin
